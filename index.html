@@ -1,56 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>QR Scanner Demo</title>
+  <title>CyberLab — QR Attack Simulation</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="0; url=login.html">
   <style>
     body {
       margin: 0;
-      background: #000;
-      color: #0f0;
+      background: #0a0a0f;
+      color: #00ff41;
       font-family: monospace;
-      text-align: center;
-    }
-    h1 {
-      padding: 10px;
-    }
-    #reader {
-      width: 100%;
-      max-width: 400px;
-      margin: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
   </style>
 </head>
+
 <body>
-
-<h1>Scan the QR Code</h1>
-<div id="reader"></div>
-
-<!-- QR Scanner Library -->
-<script src="https://unpkg.com/html5-qrcode"></script>
-
-<script>
-  const scanner = new Html5Qrcode("reader");
-
-  scanner.start(
-    { facingMode: "environment" }, // back camera
-    {
-      fps: 10,
-      qrbox: 250
-    },
-    (decodedText) => {
-      // Stop scanning once QR is read
-      scanner.stop();
-
-      // Redirect to scanned URL
-      window.location.href = decodedText;
-    },
-    (error) => {
-      // ignore scan errors
-    }
-  );
-</script>
-
+  <p>Redirecting to <a href="login.html" style="color: #00ff41;">CyberLab Login</a>...</p>
 </body>
+
 </html>

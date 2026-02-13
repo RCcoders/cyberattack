@@ -1,32 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Loading…</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       height: 100vh;
-      background: black;
-      color: lime;
-      font-family: monospace;
+      background: #0a0a0f;
+      color: #00ff41;
+      font-family: 'JetBrains Mono', monospace;
       display: flex;
       justify-content: center;
       align-items: center;
       text-align: center;
       cursor: wait;
       user-select: none;
+      overflow: hidden;
+    }
+
+    /* Pulsing ring background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 400px;
+      height: 400px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 2px solid rgba(0, 255, 65, 0.1);
+      animation: pulseRing 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulseRing {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.3;
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.05;
+      }
+    }
+
+    /* Scanlines overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 255, 65, 0.02) 2px,
+          rgba(0, 255, 65, 0.02) 4px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #content {
+      position: relative;
+      z-index: 10;
+      max-width: 440px;
+      padding: 0 20px;
+    }
+
+    /* Loading state */
+    .loader {
+      font-size: 1.2rem;
+      letter-spacing: 4px;
+    }
+
+    .loader span {
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.2;
+      }
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      width: 200px;
+      height: 3px;
+      background: rgba(0, 255, 65, 0.1);
+      border-radius: 3px;
+      margin: 20px auto 0;
+      overflow: hidden;
+    }
+
+    .progress-bar .fill {
+      width: 0%;
+      height: 100%;
+      background: #00ff41;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+
+    /* Warning state */
+    .warning-box {
+      display: none;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .warning-box.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .warning-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    .warning-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ff4444;
+      margin-bottom: 16px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .warning-text {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.82rem;
+      line-height: 1.8;
+      margin-bottom: 6px;
+    }
+
+    .warning-text .attack {
+      color: #ff4444;
+      font-weight: 700;
+    }
+
+    .warning-list {
+      list-style: none;
+      margin: 20px 0;
+      text-align: left;
+      display: inline-block;
+    }
+
+    .warning-list li {
+      padding: 8px 0;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .warning-list li span.icon {
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+
+    .tip {
+      margin-top: 24px;
+      padding: 14px 20px;
+      background: rgba(0, 255, 65, 0.06);
+      border: 1px solid rgba(0, 255, 65, 0.15);
+      border-radius: 10px;
+      color: #00ff41;
+      font-size: 0.78rem;
+      line-height: 1.6;
     }
   </style>
 </head>
+
 <body>
-  <div id="text">Loading…</div>
+
+  <div id="content">
+    <!-- Loading Phase -->
+    <div id="loadingPhase">
+      <div class="loader">LOADING<span>...</span></div>
+      <div class="progress-bar">
+        <div class="fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- Warning Phase -->
+    <div class="warning-box" id="warningBox">
+      <div class="warning-icon">⚠️</div>
+      <div class="warning-title">You've Been Trapped</div>
+      <p class="warning-text">
+        This page <span class="attack">simulated a malicious QR code attack</span>.
+        In a real scenario, a page like this could:
+      </p>
+      <ul class="warning-list">
+        <li><span class="icon">🎣</span> Trap you in a phishing page</li>
+        <li><span class="icon">🔄</span> Redirect you silently to malware</li>
+        <li><span class="icon">👁️</span> Log your behavior & device info</li>
+        <li><span class="icon">🔑</span> Steal credentials via fake login forms</li>
+        <li><span class="icon">📍</span> Track your location</li>
+      </ul>
+      <div class="tip">
+        👉 <strong>Never scan random QR codes.</strong> Always verify the source before scanning.
+        This was an educational awareness demo by <strong>CyberLab</strong>.
+      </div>
+    </div>
+  </div>
 
   <script>
     let lock = true;
 
-    // Push fake state
+    // Push fake state to trap back button
     history.pushState(null, "", location.href);
 
     // Trap back button
@@ -36,26 +263,36 @@
       }
     });
 
-    // Block clicks/touches
-    document.addEventListener("click", e => e.preventDefault());
-    document.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
+    // Block clicks/touches during lock phase
+    document.addEventListener("click", (e) => { if (lock) e.preventDefault(); });
+    document.addEventListener("touchstart", (e) => { if (lock) e.preventDefault(); }, { passive: false });
 
-    // Release after 5 seconds
+    // Animate progress bar over 10 seconds
+    const fill = document.getElementById('progressFill');
+    const duration = 10; // seconds
+    let elapsed = 0;
+
+    const progressInterval = setInterval(() => {
+      elapsed += 0.1;
+      const percent = Math.min((elapsed / duration) * 100, 100);
+      fill.style.width = percent + '%';
+
+      if (elapsed >= duration) {
+        clearInterval(progressInterval);
+      }
+    }, 100);
+
+    // Release after 10 seconds and show warning
     setTimeout(() => {
       lock = false;
       document.body.style.cursor = "default";
 
-      document.getElementById("text").innerHTML = `
-        ⚠️ WARNING ⚠️<br><br>
-        You tried to go back.<br><br>
-        A malicious QR could:
-        <br>• Trap you in a phishing page
-        <br>• Redirect you silently
-        <br>• Log your behavior
-        <br><br>
-        👉 Never scan random QR codes.
-      `;
-    }, 50000);
+      // Hide loading, show warning
+      document.getElementById('loadingPhase').style.display = 'none';
+      document.getElementById('warningBox').classList.add('show');
+    }, duration * 1000);
   </script>
+
 </body>
+
 </html>
