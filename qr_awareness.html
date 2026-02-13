@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Loading…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: black;
+      color: lime;
+      font-family: monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: wait;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="text">Loading…</div>
+
+  <script>
+    let lock = true;
+
+    // Push fake state
+    history.pushState(null, "", location.href);
+
+    // Trap back button
+    window.addEventListener("popstate", () => {
+      if (lock) {
+        history.pushState(null, "", location.href);
+      }
+    });
+
+    // Block clicks/touches
+    document.addEventListener("click", e => e.preventDefault());
+    document.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
+
+    // Release after 5 seconds
+    setTimeout(() => {
+      lock = false;
+      document.body.style.cursor = "default";
+
+      document.getElementById("text").innerHTML = `
+        ⚠️ WARNING ⚠️<br><br>
+        You tried to go back.<br><br>
+        A malicious QR could:
+        <br>• Trap you in a phishing page
+        <br>• Redirect you silently
+        <br>• Log your behavior
+        <br><br>
+        👉 Never scan random QR codes.
+      `;
+    }, 50000);
+  </script>
+</body>
+</html>
